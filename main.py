@@ -4,7 +4,6 @@
 import cv2
 import numpy as np
 import scipy.stats
-import imagehash
 
 
 def viewImage(image, name_of_window):
