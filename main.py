@@ -130,8 +130,9 @@ def move_detect():
     video = cv2.VideoCapture(0)
 
     frame_count = 0
-    frame_sum = 0
+    frame_prev = 0
     frame_sum_control = 0
+    detect_count = 0
     while(True):
 
         ret, frame = video.read()
@@ -139,10 +140,13 @@ def move_detect():
 
         if frame_count == 5:
             frame_count = 0
+            frame_prev = frame_sum_control
             frame_sum_control = np.mean(frame)
         #print(np.sum(frame))
 
-        print(frame_sum_control / 100000)
+        if frame_sum_control - frame_prev > 1:
+            detect_count += 1
+            print("Detect move: {}".format(detect_count))
 
         viewImage(frame, "window")
 
