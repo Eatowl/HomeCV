@@ -144,8 +144,9 @@ def move_detect():
             frame_sum_control = np.mean(frame)
         #print(np.sum(frame))
 
-        if frame_sum_control - frame_prev > 1:
+        if frame_sum_control - frame_prev > 0.5:
             detect_count += 1
+            print(frame_sum_control, frame_prev)
             print("Detect move: {}".format(detect_count))
 
         viewImage(frame, "window")
