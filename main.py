@@ -4,8 +4,7 @@
 import cv2
 import numpy as np
 import scipy.stats
-from keras.datasets import mnist
-from matplotlib import pyplot
+
 
 def viewImage(image, name_of_window):
 
@@ -164,16 +163,82 @@ def move_detect():
 
 # MNIST test neural networks
 
+import numpy.random
+from keras.datasets import mnist
+from matplotlib import pyplot
+
+
 #loading the dataset
 (train_X, train_y), (test_X, test_y) = mnist.load_data()
 
 #printing the shapes of the vectors
-print('X_train: ' + str(train_X.shape))
-print('Y_train: ' + str(train_y.shape))
-print('X_test:  '  + str(test_X.shape))
-print('Y_test:  '  + str(test_y.shape))
+#print(type(train_X))
+#print('Y_train: ' + str(train_y.shape))
+#print('X_test:  '  + str(test_X.shape))
+#print('Y_test:  '  + str(test_y.shape))
 
 for i in range(9):
     pyplot.subplot(330 + 1 + i)
     pyplot.imshow(train_X[i], cmap=pyplot.get_cmap('gray'))
+#print(len(train_X))
+#print(train_X[0])
+#print("&"*80)
+#print(len(train_y))
 pyplot.show()
+
+
+
+
+
+def ele_mul(number, vector):
+    output = np.zeros((1, len(vector)))
+    for i in range(len(vector)):
+        output[0][i] = number * vector[i]
+        
+    return output
+
+def build_rand_weights():
+    return numpy.random.default_rng(42).random((784, 10))
+
+def build_true(true_value):
+    true = np.zeros((1, 10))
+    for i in range(len(true[0])):
+        if i == true_value:
+            true[0][i] = 1
+
+    return true[0]
+
+def neural_network(inputs, weights):
+    pred = np.zeros((784, 10))
+    count = 0
+    for i in range(len(inputs)):
+        for j in range(len(inputs[0])):
+            pred[count] = ele_mul(inputs[i][j], weights[count])
+            count += 1
+
+    return pred
+
+weights = build_rand_weights()
+
+pred = neural_network(train_X[0], weights)
+
+true = build_true(train_y[0])
+
+error = np.zeros((1, 10))
+delta = np.zeros((1, 10))
+
+#print("*"*80)
+print(pred[0])
+#print(len(train_X[0][0]))
+
+print(true)
+
+for i in range(len(true)):
+    '''print(error)
+    print(delta)
+    print("pred", pred[0])
+    print("true", true)
+    print("H"*80)
+    #print(pred[0][i], true[i])'''
+    error[0][i] = (pred[0][i] - true[i]) ** 2
+    delta[0][i] = pred[0][i] - true[i]
