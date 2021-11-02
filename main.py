@@ -187,9 +187,6 @@ for i in range(9):
 pyplot.show()
 
 
-
-
-
 def ele_mul(number, vector):
     output = np.zeros((1, len(vector)))
     for i in range(len(vector)):
@@ -218,6 +215,18 @@ def neural_network(inputs, weights):
 
     return pred
 
+def outer_prod(inputs, delta):
+    output = np.zeros((784, 10))
+    print("="*80)
+    print(input)
+    print(delta)
+    count = 0
+    for i in range(len(inputs)):
+        for j in range(len(inputs[0])):
+            output[count] = ele_mul(inputs[i][j], delta)
+
+    return output
+
 weights = build_rand_weights()
 
 pred = neural_network(train_X[0], weights)
@@ -233,6 +242,7 @@ print(pred[0])
 
 print(true)
 
+
 for i in range(len(true)):
     '''print(error)
     print(delta)
@@ -242,3 +252,14 @@ for i in range(len(true)):
     #print(pred[0][i], true[i])'''
     error[0][i] = (pred[0][i] - true[i]) ** 2
     delta[0][i] = pred[0][i] - true[i]
+
+
+print(pred)
+print(error)
+print(delta)
+
+weights_delta = outer_prod(train_X[0], delta[0])
+
+for i in weights_delta:
+    print(i)
+#print(weights_delta)
