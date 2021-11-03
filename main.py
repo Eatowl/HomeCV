@@ -202,7 +202,7 @@ def build_true(true_value):
     true = np.zeros((1, 10))
     for i in range(len(true[0])):
         if i == true_value:
-            true[0][i] = 1
+            true[0][i] = 1.0
 
     return true[0]
 
@@ -217,35 +217,40 @@ def outer_prod(inputs, delta):
  
     return output
 
-alpha = 0.01
+alpha = 0.1
 weights = build_rand_weights()
-error = np.zeros((1, 10))
-delta = np.zeros((1, 10))
+
+for image in range(1):
+    error = np.zeros((1, 10))
+    delta = np.zeros((1, 10))
 
 
-# Take the first image and translate it into a vector
-input = train_X[0].ravel()
-true = build_true(train_y[0])
+    # Take the first image and translate it into a vector
+    input = train_X[image].ravel()
+    true = build_true(train_y[image])
 
-for iter in range(9):
+    for iter in range(6):
 
-    weightsT = weights.transpose()
-    pred = neural_network(input, weightsT)
+        weightsT = weights.transpose()
+        pred = neural_network(input, weightsT)
 
-    for i in range(len(pred)):
+        for i in range(len(pred)):
 
-        error[0][i] = (pred[i] - true[i]) ** 2
-        delta[0][i] = pred[i] - true[i]
+            error[0][i] = (pred[i] - true[i]) ** 2
+            delta[0][i] = pred[i] - true[i]
 
+        print(error[0])
+        error[0] = np.around(error[0], decimals = 2)
+        print(np.around(error, decimals = 2))
+        weights_delta = outer_prod(input, delta)
+        weights = weights - (weights_delta * alpha)
 
-    weights_delta = outer_prod(input, delta)
-    weights = weights - (weights_delta * alpha)
-
-    print("iter {}". format(iter + 1))
-    print("pred: {}".format(pred))
-    print("error: {}".format(error))
-    print("delta: {}".format(delta))
-    print('weights: {}'.format(weights))
-    print('weights_delta: {}'.format(weights_delta))
-    print("*"*80)
-
+        print("iter {}". format(iter + 1))
+        print("pred: {}".format(pred))
+        print("true: {}".format(true))
+        print("error: {}".format(error))
+        print("delta: {}".format(delta))
+        print('weights: {}'.format(weights))
+        print('weights_delta: {}'.format(weights_delta))
+        print("*"*80)
+        
