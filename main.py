@@ -163,7 +163,7 @@ def move_detect():
 
 # MNIST test neural networks
 
-import numpy.random
+#import numpy.random
 from keras.datasets import mnist
 from matplotlib import pyplot
 
@@ -177,25 +177,26 @@ from matplotlib import pyplot
 #print('X_test:  '  + str(test_X.shape))
 #print('Y_test:  '  + str(test_y.shape))
 
-for i in range(9):
-    pyplot.subplot(330 + 1 + i)
-    pyplot.imshow(train_X[i], cmap=pyplot.get_cmap('gray'))
+#for i in range(9):
+#    pyplot.subplot(330 + 1 + i)
+#    pyplot.imshow(train_X[i], cmap=pyplot.get_cmap('gray'))
 #print(len(train_X))
 #print(train_X[0])
 #print("&"*80)
 #print(len(train_y))
-pyplot.show()
+#pyplot.show()
 
 
 def ele_mul(number, vector):
-    output = np.zeros((1, len(vector)))
-    for i in range(len(vector)):
-        output[0][i] = number * vector[i]
+    output = np.zeros((1, len(vector[0])))
+
+    for i in range(len(vector[0])):
+        output[0][i] = number * vector[0][i]
         
-    return output
+    return output[0]
 
 def build_rand_weights():
-    return numpy.random.default_rng(42).random((784, 10))
+    return np.random.default_rng(42).random((784, 10))
 
 def build_true(true_value):
     true = np.zeros((1, 10))
@@ -205,61 +206,46 @@ def build_true(true_value):
 
     return true[0]
 
-def neural_network(inputs, weights):
-    pred = np.zeros((784, 10))
-    count = 0
-    for i in range(len(inputs)):
-        for j in range(len(inputs[0])):
-            pred[count] = ele_mul(inputs[i][j], weights[count])
-            count += 1
-
-    return pred
+def neural_network(inputs, weights):    
+    return weights.dot(inputs)
 
 def outer_prod(inputs, delta):
     output = np.zeros((784, 10))
-    print("="*80)
-    print(input)
-    print(delta)
-    count = 0
+   
     for i in range(len(inputs)):
-        for j in range(len(inputs[0])):
-            output[count] = ele_mul(inputs[i][j], delta)
-
+        output[i] = ele_mul(inputs[i], delta)
+ 
     return output
 
+alpha = 0.01
 weights = build_rand_weights()
-
-pred = neural_network(train_X[0], weights)
-
-true = build_true(train_y[0])
-
 error = np.zeros((1, 10))
 delta = np.zeros((1, 10))
 
-#print("*"*80)
-print(pred[0])
-#print(len(train_X[0][0]))
 
-print(true)
+# Take the first image and translate it into a vector
+input = train_X[0].ravel()
+true = build_true(train_y[0])
 
+for iter in range(9):
 
-for i in range(len(true)):
-    '''print(error)
-    print(delta)
-    print("pred", pred[0])
-    print("true", true)
-    print("H"*80)
-    #print(pred[0][i], true[i])'''
-    error[0][i] = (pred[0][i] - true[i]) ** 2
-    delta[0][i] = pred[0][i] - true[i]
+    weightsT = weights.transpose()
+    pred = neural_network(input, weightsT)
+
+    for i in range(len(pred)):
+
+        error[0][i] = (pred[i] - true[i]) ** 2
+        delta[0][i] = pred[i] - true[i]
 
 
-print(pred)
-print(error)
-print(delta)
+    weights_delta = outer_prod(input, delta)
+    weights = weights - (weights_delta * alpha)
 
-weights_delta = outer_prod(train_X[0], delta[0])
+    print("iter {}". format(iter + 1))
+    print("pred: {}".format(pred))
+    print("error: {}".format(error))
+    print("delta: {}".format(delta))
+    print('weights: {}'.format(weights))
+    print('weights_delta: {}'.format(weights_delta))
+    print("*"*80)
 
-for i in weights_delta:
-    print(i)
-#print(weights_delta)
