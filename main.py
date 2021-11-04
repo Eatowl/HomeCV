@@ -220,16 +220,16 @@ def outer_prod(inputs, delta):
 alpha = 0.1
 weights = build_rand_weights()
 
-for image in range(1):
+for iter in range(6):
+
     error = np.zeros((1, 10))
     delta = np.zeros((1, 10))
+    error_for_all = np.zeros((1, 10))
 
-
-    # Take the first image and translate it into a vector
-    input = train_X[image].ravel()
-    true = build_true(train_y[image])
-
-    for iter in range(6):
+    for image in range(10):
+        # Take the first image and translate it into a vector
+        input = train_X[image].ravel()
+        true = build_true(train_y[image])
 
         weightsT = weights.transpose()
         pred = neural_network(input, weightsT)
@@ -239,18 +239,18 @@ for image in range(1):
             error[0][i] = (pred[i] - true[i]) ** 2
             delta[0][i] = pred[i] - true[i]
 
-        print(error[0])
-        error[0] = np.around(error[0], decimals = 2)
-        print(np.around(error, decimals = 2))
+
+        error_for_all += error
         weights_delta = outer_prod(input, delta)
         weights = weights - (weights_delta * alpha)
 
         print("iter {}". format(iter + 1))
         print("pred: {}".format(pred))
         print("true: {}".format(true))
-        print("error: {}".format(error))
         print("delta: {}".format(delta))
         print('weights: {}'.format(weights))
         print('weights_delta: {}'.format(weights_delta))
         print("*"*80)
+
+    print("error: {}".format(error_for_all))
         
