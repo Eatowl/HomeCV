@@ -186,6 +186,11 @@ from matplotlib import pyplot
 #print(len(train_y))
 #pyplot.show()
 
+def relu(x):
+    return (x > 0) * x
+
+def relu2deriv(output):
+    return output > 0
 
 def ele_mul(number, vector):
     output = np.zeros((1, len(vector[0])))
@@ -207,7 +212,7 @@ def build_true(true_value):
     return true[0]
 
 def neural_network(inputs, weights):    
-    return weights.dot(inputs)
+    return np.dot(inputs, weights)
 
 def outer_prod(inputs, delta):
     output = np.zeros((784, 10))
@@ -219,44 +224,43 @@ def outer_prod(inputs, delta):
 
 alpha = 0.1
 weights = build_rand_weights()
+weights_0_1 = 2 * np.random.random((784, 784)) - 1
+weights_1_2 = 2 * np.random.random((784, 10)) - 1
 
-for iter in range(6):
-
+for iter in range(10):
     error = np.zeros((1, 10))
-    delta = np.zeros((1, 10))
+    layer_2_delta = np.zeros((1, 10))
     error_for_all = np.zeros((1, 10))
 
-    for image in range(10):
+    for image in range(1):
         # Take the first image and translate it into a vector
-        input = train_X[image].ravel()
+        layer_0 = train_X[image].ravel()
         true = build_true(train_y[image])
 
-        weightsT = weights.transpose()
-        pred = neural_network(input, weightsT)
+        weightsT = weights_0_1.transpose()
+        layer_1 = relu(neural_network(np.array([layer_0]), weights_0_1))
+        layer_2 = neural_network(layer_1, weights_1_2)
 
-        for i in range(len(pred)):
+        for i in range(len(layer_2[0])):
 
-            error[0][i] = (pred[i] - true[i]) ** 2
-            delta[0][i] = pred[i] - true[i]
-
+            error[0][i] = (layer_2[0][i] - true[i]) ** 2
+            layer_2_delta[0][i] = true[i] - layer_2[0][i]
 
         error_for_all += error
-        weights_delta = outer_prod(input, delta)
-        weights = weights - (weights_delta * alpha)
+        layer_1_delta = layer_2_delta.dot(weights_1_2.T) * relu2deriv(layer_1)
 
-        print("iter {}". format(iter + 1))
-        print("pred: {}".format(pred))
-        print("true: {}".format(true))
-        print("delta: {}".format(delta))
-        print('weights: {}'.format(weights))
-        print('weights_delta: {}'.format(weights_delta))
-        print("*"*80)
+        weights_1_2 += alpha * layer_1.T.dot(layer_2_delta)
+        weights_0_1 += alpha * np.array([layer_0]).T.dot(layer_1_delta)
+
 
     print("error: {}".format(error_for_all))
+    print("layer_2: {} true: {}".format(layer_2, true))
         
 
 
 # example backpropagation
+
+print("==========backpropagation===========")
 
 alpha = 0.2
 hidden_size = 4
