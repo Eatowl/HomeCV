@@ -210,19 +210,24 @@ for i, l in enumerate(labels):
     one_hot_labels[i][l] = 1
 labels = one_hot_labels
 
+test_images = test_X.reshape(len(test_X), 28*28) / 255
+test_labels = np.zeros((len(test_y), 10))
+for i, l in enumerate(test_y):
+    test_labels[i][l] = 1
+
 
 alpha = 0.005
 hidden_size = 40
 pixel_per_image = 784
 num_labels = 10
-
+iterations = 100
 
 np.random.seed(1)
 
 weights_0_1 = build_rand_weights(pixel_per_image, hidden_size)
 weights_1_2 = build_rand_weights(hidden_size, num_labels)
 
-for iter in range(100):
+for iter in range(iterations):
     error, correct_cnt = (0.0, 0)
     for i in range(len(images)):
 
@@ -243,8 +248,20 @@ for iter in range(100):
     sys.stdout.write("\r"+" I:"+str(iter)+\
                      " Error:"+str(error/float(len(images)))[0:5] +\
                      " Correct:"+ str(correct_cnt/float(len(images))))
-        
 
+    error, correct_cnt = (0.0, 0)
+    if iter % 10 == 0 or iter == iterations - 1:
+
+        for i in range(len(test_images)):
+            layer_0 = test_images[i:i+1]
+            layer_1 = relu(neural_network(layer_0, weights_0_1))
+            layer_2 = neural_network(layer_1, weights_1_2)
+
+            error += np.sum((test_labels[i:i+1] - layer_2) ** 2)
+            correct_cnt += int(np.argmax(layer_2) == np.argmax(test_labels[i:i+1]))
+
+        sys.stdout.write(" Test-Err:" + str(error/float(len(test_images)))[0:5] +\
+                    " Test-Acc:" + str(correct_cnt/float(len(test_images))) + "\n")
 
 # example backpropagation
 
