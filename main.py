@@ -217,10 +217,10 @@ for i, l in enumerate(test_y):
 
 
 alpha = 0.005
-hidden_size = 40
+hidden_size = 100
 pixel_per_image = 784
 num_labels = 10
-iterations = 100
+iterations = 300
 
 np.random.seed(1)
 
@@ -233,6 +233,8 @@ for iter in range(iterations):
 
         layer_0 = images[i:i+1]
         layer_1 = relu(neural_network(layer_0, weights_0_1))
+        dropout_mask = np.random.randint(2, size=layer_1.shape)
+        layer_1 *= dropout_mask * 2
         layer_2 = neural_network(layer_1, weights_1_2)
 
         error += np.sum((labels[i:i+1] - layer_2) ** 2)
@@ -240,6 +242,7 @@ for iter in range(iterations):
 
         layer_2_delta = (labels[i:i+1] - layer_2)
         layer_1_delta = layer_2_delta.dot(weights_1_2.T) * relu2deriv(layer_1)
+        layer_1_delta *= dropout_mask
 
         weights_1_2 += alpha * layer_1.T.dot(layer_2_delta)
         weights_0_1 += alpha * layer_0.T.dot(layer_1_delta)
