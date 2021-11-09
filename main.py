@@ -163,7 +163,7 @@ def move_detect():
 
 # MNIST test neural networks
 
-#import numpy.random
+import sys
 from keras.datasets import mnist
 from matplotlib import pyplot
 
@@ -171,11 +171,6 @@ from matplotlib import pyplot
 #loading the dataset
 (train_X, train_y), (test_X, test_y) = mnist.load_data()
 
-#printing the shapes of the vectors
-#print(type(train_X))
-#print('Y_train: ' + str(train_y.shape))
-#print('X_test:  '  + str(test_X.shape))
-#print('Y_test:  '  + str(test_y.shape))
 
 #for i in range(9):
 #    pyplot.subplot(330 + 1 + i)
@@ -192,16 +187,8 @@ def relu(x):
 def relu2deriv(output):
     return output > 0
 
-def ele_mul(number, vector):
-    output = np.zeros((1, len(vector[0])))
-
-    for i in range(len(vector[0])):
-        output[0][i] = number * vector[0][i]
-        
-    return output[0]
-
-def build_rand_weights():
-    return np.random.default_rng(42).random((784, 10))
+def build_rand_weights(size_x, size_y):
+    return 0.2 * np.random.random((size_x, size_y)) - 0.1
 
 def build_true(true_value):
     true = np.zeros((1, 10))
@@ -214,47 +201,48 @@ def build_true(true_value):
 def neural_network(inputs, weights):    
     return np.dot(inputs, weights)
 
-def outer_prod(inputs, delta):
-    output = np.zeros((784, 10))
-   
-    for i in range(len(inputs)):
-        output[i] = ele_mul(inputs[i], delta)
- 
-    return output
 
-alpha = 0.1
-weights = build_rand_weights()
-weights_0_1 = 2 * np.random.random((784, 784)) - 1
-weights_1_2 = 2 * np.random.random((784, 10)) - 1
+images, labels = (train_X[0:1000].reshape(1000, 28*28) / 255, train_y[0:1000])
 
-for iter in range(10):
-    error = np.zeros((1, 10))
-    layer_2_delta = np.zeros((1, 10))
-    error_for_all = np.zeros((1, 10))
+one_hot_labels = np.zeros((len(labels), 10))
 
-    for image in range(1):
-        # Take the first image and translate it into a vector
-        layer_0 = train_X[image].ravel()
-        true = build_true(train_y[image])
+for i, l in enumerate(labels):
+    one_hot_labels[i][l] = 1
+labels = one_hot_labels
 
-        weightsT = weights_0_1.transpose()
-        layer_1 = relu(neural_network(np.array([layer_0]), weights_0_1))
+
+alpha = 0.005
+hidden_size = 40
+pixel_per_image = 784
+num_labels = 10
+
+
+np.random.seed(1)
+
+weights_0_1 = build_rand_weights(pixel_per_image, hidden_size)
+weights_1_2 = build_rand_weights(hidden_size, num_labels)
+
+for iter in range(100):
+    error, correct_cnt = (0.0, 0)
+    for i in range(len(images)):
+
+        layer_0 = images[i:i+1]
+        layer_1 = relu(neural_network(layer_0, weights_0_1))
         layer_2 = neural_network(layer_1, weights_1_2)
 
-        for i in range(len(layer_2[0])):
+        error += np.sum((labels[i:i+1] - layer_2) ** 2)
+        correct_cnt += int(np.argmax(layer_2) == np.argmax(labels[i:i+1]))
 
-            error[0][i] = (layer_2[0][i] - true[i]) ** 2
-            layer_2_delta[0][i] = true[i] - layer_2[0][i]
-
-        error_for_all += error
+        layer_2_delta = (labels[i:i+1] - layer_2)
         layer_1_delta = layer_2_delta.dot(weights_1_2.T) * relu2deriv(layer_1)
 
         weights_1_2 += alpha * layer_1.T.dot(layer_2_delta)
-        weights_0_1 += alpha * np.array([layer_0]).T.dot(layer_1_delta)
+        weights_0_1 += alpha * layer_0.T.dot(layer_1_delta)
 
 
-    print("error: {}".format(error_for_all))
-    print("layer_2: {} true: {}".format(layer_2, true))
+    sys.stdout.write("\r"+" I:"+str(iter)+\
+                     " Error:"+str(error/float(len(images)))[0:5] +\
+                     " Correct:"+ str(correct_cnt/float(len(images))))
         
 
 
@@ -296,12 +284,12 @@ for iteration in range(2):
         layer_1_delta = layer_2_delta.dot(weights_1_2.T) * relu2deriv(layer_1)
         
         weights_1_2 += alpha * layer_1.T.dot(layer_2_delta)
-        print(layer_0, layer_1_delta)
+        #print(layer_0, layer_1_delta)
         weights_0_1 += alpha * layer_0.T.dot(layer_1_delta)
-        print(weights_0_1)
+        #print(weights_0_1)
         
     #print(layer_1_delta)
         
-    if iteration % 10 == 9:
+    '''if iteration % 10 == 9:
         print("Error: {}".format(layer_2_error))
-        print(layer_2)
+        print(layer_2)'''
