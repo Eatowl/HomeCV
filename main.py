@@ -172,15 +172,6 @@ from matplotlib import pyplot
 (train_X, train_y), (test_X, test_y) = mnist.load_data()
 
 
-#for i in range(9):
-#    pyplot.subplot(330 + 1 + i)
-#    pyplot.imshow(train_X[i], cmap=pyplot.get_cmap('gray'))
-#print(len(train_X))
-#print(train_X[0])
-#print("&"*80)
-#print(len(train_y))
-#pyplot.show()
-
 def tanh(x):
     return np.tanh(x)
 
@@ -191,21 +182,11 @@ def softmax(x):
     temp = np.exp(x)
     return temp / np.sum(temp, axis=1, keepdims=True)
 
-'''def relu(x):
-    return (x > 0) * x
-
-def relu2deriv(output):
-    return output > 0'''
-
-def build_rand_weights(size_x, size_y):
-    return 0.2 * np.random.random((size_x, size_y)) - 0.1
-
 def neural_network(inputs, weights):    
     return np.dot(inputs, weights)
 
 
 images, labels = (train_X[0:1000].reshape(1000, 28*28) / 255, train_y[0:1000])
-
 one_hot_labels = np.zeros((len(labels), 10))
 
 for i, l in enumerate(labels):
@@ -245,13 +226,13 @@ for iter in range(iterations):
             correct_cnt += int(np.argmax(layer_2[k:k+1]) ==\
                                np.argmax(labels[batch_start+k:batch_start+k+1]))
 
-            layer_2_delta = (labels[batch_start:batch_end] - layer_2)\
+        layer_2_delta = (labels[batch_start:batch_end] - layer_2)\
                                  / (batch_size * layer_2.shape[0])
-            layer_1_delta = layer_2_delta.dot(weights_1_2.T) * tanh2deriv(layer_1)
-            layer_1_delta *= dropout_mask
+        layer_1_delta = layer_2_delta.dot(weights_1_2.T) * tanh2deriv(layer_1)
+        layer_1_delta *= dropout_mask
 
-            weights_1_2 += alpha * layer_1.T.dot(layer_2_delta)
-            weights_0_1 += alpha * layer_0.T.dot(layer_1_delta)
+        weights_1_2 += alpha * layer_1.T.dot(layer_2_delta)
+        weights_0_1 += alpha * layer_0.T.dot(layer_1_delta)
     
     test_correct_cnt = 0
     for i in range(len(test_images)):
