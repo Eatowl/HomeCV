@@ -7,15 +7,12 @@ import scipy.stats
 
 
 def viewImage(image, name_of_window):
-
     cv2.imshow(name_of_window, image)
     #cv2.waitKey(0)
     #cv2.destroyAllWindows()
 
 def cropping(img):
-
     crop_img = img[0:720, 0:643]
-
     return crop_img
 
 def mean_confidence_interval(data, confidence=0.95):
@@ -92,7 +89,6 @@ def color_image():
     valX = int(maxX[0]) - int(minX[0])
 
     print(valX, valY)
-
 
     for i in range(minX[0], valX):
         find_red_image[minX[0]][i - 10] = [0, 70, 0]
@@ -171,6 +167,14 @@ from matplotlib import pyplot
 #loading the dataset
 (train_X, train_y), (test_X, test_y) = mnist.load_data()
 
+alpha = 2
+hidden_size = 100
+pixel_per_image = 784
+num_labels = 10
+iterations = 300
+batch_size = 100
+
+np.random.seed(1)
 
 def tanh(x):
     return np.tanh(x)
@@ -197,16 +201,6 @@ test_images = test_X.reshape(len(test_X), 28*28) / 255
 test_labels = np.zeros((len(test_y), 10))
 for i, l in enumerate(test_y):
     test_labels[i][l] = 1
-
-
-alpha = 2
-hidden_size = 100
-pixel_per_image = 784
-num_labels = 10
-iterations = 300
-batch_size = 100
-
-np.random.seed(1)
 
 weights_0_1 = 0.02 * np.random.random((pixel_per_image, hidden_size)) - 0.01
 weights_1_2 = 0.2 * np.random.random((hidden_size, num_labels)) - 0.1
