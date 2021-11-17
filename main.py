@@ -170,7 +170,7 @@ from matplotlib import pyplot
 alpha = 2
 pixel_per_image = 784
 num_labels = 10
-iterations = 300
+iterations = 200
 batch_size = 128
 
 input_rows = 28
@@ -216,7 +216,6 @@ for i, l in enumerate(test_y):
 hidden_size = ((input_rows - kernel_rows) * (input_cols - kernel_cols)) * num_kernels
 
 kernels = 0.02 * np.random.random((kernel_rows * kernel_cols, num_kernels)) - 0.01
-#weights_0_1 = 0.02 * np.random.random((pixel_per_image, hidden_size)) - 0.01
 weights_1_2 = 0.2 * np.random.random((hidden_size, num_labels)) - 0.1
 
 for iter in range(iterations):
